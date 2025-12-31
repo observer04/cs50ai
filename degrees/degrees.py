@@ -1,4 +1,5 @@
 import csv
+import stat
 import sys
 
 from util import Node, StackFrontier, QueueFrontier
@@ -85,15 +86,34 @@ def main():
 
 
 def shortest_path(source, target):
-    """
-    Returns the shortest list of (movie_id, person_id) pairs
-    that connect the source to the target.
+    if source == target:
+        return []
 
-    If no possible path, returns None.
-    """
+    start = Node(state=source, parent=None, action=None)
+    frontier = QueueFrontier()
+    frontier.add(start)
+    explored = set()
 
-    # TODO
-    raise NotImplementedError
+    while not frontier.empty():
+        node = frontier.remove()
+        explored.add(node.state)
+
+        for movie_id, person_id in neighbors_for_person(node.state):
+            if person_id in explored or frontier.contains_state(person_id):
+                continue
+            child = Node(state=person_id, parent=node, action=movie_id)
+            if child.state == target:
+                # build path
+                path = []
+                while child.parent is not None:
+                    path.append((child.action, child.state))
+                    child = child.parent
+                path.reverse()
+                print(path)
+                return path
+            frontier.add(child)
+
+    return None
 
 
 def person_id_for_name(name):
